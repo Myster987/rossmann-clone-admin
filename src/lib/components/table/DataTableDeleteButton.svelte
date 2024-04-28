@@ -10,6 +10,7 @@
 	const honoClient = createHonoClient(fetch);
 	export let selectedRows: Writable<Record<string, boolean>>;
 	let currentlySelectedRows = Object.keys($selectedRows);
+
 	$: currentlySelectedRows = Object.keys($selectedRows);
 
 	const handleDeleteSelectedProducts = async () => {
@@ -25,7 +26,7 @@
 		});
 		const data = await res.json();
 		if (data.success) {
-			toast.success(`Pomyślnie usunięto ${$selectedRows.length} produkty.`);
+			toast.success(`Pomyślnie usunięto ${Object.keys($selectedRows).length} produkt(y).`);
 			$selectedRows = {};
 			$productsStore = $productsStore.filter(
 				(product) => !currentlySelectedRows.includes(product.id)

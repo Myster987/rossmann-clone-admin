@@ -1,6 +1,3 @@
-import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
-import { addProductFormSchema } from '@/auth/form_schemas';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params: { companyId }, locals: { honoClient } }) => {
@@ -13,7 +10,6 @@ export const load: PageServerLoad = async ({ params: { companyId }, locals: { ho
 	};
 
 	return {
-		products: await fetchCompanyProducts(),
-		form: await superValidate(zod(addProductFormSchema))
+		products: await fetchCompanyProducts()
 	};
 };

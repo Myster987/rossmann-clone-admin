@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import { addProductFormSchema } from '@/auth/form_schemas';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { editProductFormSchema, type EditProductFormSchema } from '@/auth/form_schemas';
 	import { Input } from '@/components/ui/input';
 	import { Separator } from '@/components/ui/separator';
 	import * as Form from '@/components/ui/form';
 	import { toast } from 'svelte-sonner';
+	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	let { form: formObject } = data;
-	const form = superForm(formObject as SuperValidated<Infer<EditProductFormSchema>>, {
-		invalidateAll: 'force',
-		validators: zodClient(editProductFormSchema),
-		onSubmit() {
+
+	const form = superForm(data.form, {
+		validators: zodClient(addProductFormSchema),
+		onSubmit({ formData }) {
+			formData.append('companyId', $page.params.companyId);
 			toast.loading('Proszę czekać...');
 		},
 		onUpdated({ form }) {
@@ -30,23 +29,22 @@
 	});
 
 	const { form: formData, enhance } = form;
-
-	let goBack = '/dashboard';
-
-	onMount(() => {
-		const { companyId } = $page.params;
-		goBack = `/dashboard/${companyId}`;
-	});
 </script>
 
 <main class="grid gap-3 px-6 py-3">
 	<div class="flex flex-col gap-2">
-		<h1 class="text-4xl font-bold sm:text-5xl">Edytuj Produkt</h1>
-		<p class="text-muted-foreground">Dokonaj zmian w isniejącym produkcie</p>
+		<h1 class="text-4xl font-bold sm:text-5xl">Dodaj nowy produkt</h1>
+		<p class="text-muted-foreground">Wypełnij dane i dodaj nowy produkt</p>
 	</div>
 	<Separator />
-	<form method="post" enctype="multipart/form-data" use:enhance class="flex flex-col gap-5">
-		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+	<form
+		action="/form_actions?/addProduct"
+		method="post"
+		enctype="multipart/form-data"
+		use:enhance
+		class="flex flex-col gap-5"
+	>
+		<div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			<Form.Field {form} name="name">
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Nazwa</Form.Label>
@@ -92,11 +90,7 @@
 				<Form.FieldErrors />
 			</Form.Field>
 		</div>
-		<div class="flex justify-start gap-3 pb-1 pt-1">
-			<a href={goBack}>
-				<Form.Button type="button" variant="outline" class="px-6">Wróć</Form.Button>
-			</a>
-			<Form.Button type="submit" class="px-5">Edytuj</Form.Button>
-		</div>
+
+		<Form.Button class="w-24 px-6">Dodaj</Form.Button>
 	</form>
 </main>

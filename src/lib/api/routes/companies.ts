@@ -12,7 +12,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { editCompanyFormSchema } from '@/auth/form_schemas';
-import { utapi } from '../uploadthing';
+import { cloudinary } from '../cloudinary';
 
 const postCompanySchema = z.object({
 	name: z.string(),
@@ -96,9 +96,19 @@ export const companies = new Hono()
 			const { companyId } = c.req.param();
 
 			const products = await queryAllCompanyProducts.all({ companyId });
-			const res = await utapi.deleteFiles(products.map((val) => val.imageKey));
+			const res = await cloudinary.api.delete_resources(
+				products.map((product) => product.imageKey),
+				(err, res) => {
+					console.log(res, err);
+					if (err) {
+						return false;
+					} else {
+						return true;
+					}
+				}
+			);
 
-			if (!res.success) {
+			if (!res) {
 				return c.json(
 					{
 						success: false

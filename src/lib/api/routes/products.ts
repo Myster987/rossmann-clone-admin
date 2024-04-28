@@ -11,8 +11,8 @@ import {
 	queryProductById
 } from '@/db/queries';
 import { generateId } from 'lucia';
-import { utapi } from '../uploadthing';
 import { addProductFormSchema, apiEditProductFormSchema } from '@/auth/form_schemas';
+import { cloudinary, uploadImage } from '../cloudinary';
 
 export const products = new Hono()
 	.basePath('/products')
@@ -63,12 +63,18 @@ export const products = new Hono()
 		async (c) => {
 			try {
 				const body = c.req.valid('form');
-				const id = generateId(20);
-				const { data: uploadData, error } = await utapi.uploadFiles(body.image);
+				const uploadData = await uploadImage(body.image);
 
-				if (error) {
-					throw error;
+				if (typeof uploadData.http_code != 'undefined' && uploadData.http_code != 200) {
+					return c.json(
+						{
+							success: false
+						},
+						400
+					);
 				}
+
+				const id = generateId(20);
 
 				await insertProduct.run({
 					id,
@@ -77,8 +83,8 @@ export const products = new Hono()
 					price: body.price,
 					description: body.description,
 					ingredients: body.ingredients,
-					imageKey: uploadData.key,
-					imageUrl: uploadData.url
+					imageKey: uploadData.public_id,
+					imageUrl: uploadData.secure_url
 				});
 
 				return c.json({
@@ -112,12 +118,19 @@ export const products = new Hono()
 					.delete(schema.products)
 					.where(inArray(schema.products.id, body.productIds))
 					.returning();
-				const fileDeleteResult = await utapi.deleteFiles(
-					products.map((product) => product.imageKey)
+				const fileDeleteResult: boolean = await cloudinary.api.delete_resources(
+					products.map((product) => product.imageKey),
+					(err, res) => {
+						if (err) {
+							return false;
+						} else {
+							return true;
+						}
+					}
 				);
 				if (!fileDeleteResult) {
 					throw Error(
-						`Something went wrong with deleting products (id: [${body.productIds.join(', ')}])`
+						`Something went wrong with deleting products (id: [${JSON.stringify(body.productIds)}])`
 					);
 				}
 				return c.json({
@@ -141,7 +154,9 @@ export const products = new Hono()
 			if (typeof product == 'undefined') {
 				throw Error(`Product (product id - ${product}) does not exist`);
 			}
-			const fileDeleteResult = await utapi.deleteFiles(product.imageKey!);
+			const fileDeleteResult = await cloudinary.uploader.destroy(product.imageKey, {
+				invalidate: true
+			});
 			if (!fileDeleteResult) {
 				throw Error(`Something went wrong with deleting product (id: ${productId}) image`);
 			}
@@ -179,16 +194,25 @@ export const products = new Hono()
 				}
 
 				if (typeof body.image != 'undefined' && typeof body.image != 'string') {
-					const fileDeleteResult = await utapi.deleteFiles(product.imageKey!);
+					const fileDeleteResult = await cloudinary.uploader.destroy(product.imageKey, {
+						invalidate: true
+					});
 					if (!fileDeleteResult) {
 						throw Error(`Something went wrong with deleting product (id: ${productId}) image`);
 					}
 
-					const { data: uploadData, error } = await utapi.uploadFiles(body.image);
-					if (error) {
-						throw error;
+					const uploadData = await uploadImage(body.image);
+
+					if (typeof uploadData.http_code != 'undefined' && uploadData.http_code != 200) {
+						return c.json(
+							{
+								success: false
+							},
+							400
+						);
 					}
-					newProduct.imageKey = uploadData.key;
+					newProduct.imageKey = uploadData.public_id;
+					newProduct.imageUrl = uploadData.secure_url;
 				}
 
 				if (body.name != product.name) {
