@@ -139,9 +139,13 @@
 	let hideForId = Object.fromEntries(ids.map((id) => [id, true]));
 
 	$: {
-		if ($windowWidthStore < 830) {
+		if ($windowWidthStore < 830 && $windowWidthStore > 0) {
 			if (hideForId['imageUrl']) {
 				hideForId['imageUrl'] = false;
+			}
+		} else if ($windowWidthStore >= 830) {
+			if (!hideForId['imageUrl']) {
+				hideForId['imageUrl'] = true;
 			}
 		}
 	}
