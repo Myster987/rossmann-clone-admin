@@ -1,6 +1,7 @@
-import { writable, type Updater } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 interface PromiseStoreType<Data> {
+	promise: Promise<Data> | undefined;
 	data: Data | undefined;
 	isLoading: boolean;
 	isError: boolean;
@@ -8,19 +9,20 @@ interface PromiseStoreType<Data> {
 
 export function createAsyncStore<T>(initialValue?: Promise<T>) {
 	const store = writable<PromiseStoreType<T>>({
+		promise: undefined,
 		data: undefined,
 		isLoading: false,
 		isError: false
 	});
 
 	function updateStatus(promiseObject: Promise<T>) {
-		store.set({ data: undefined, isLoading: true, isError: false });
+		store.set({ promise: promiseObject, data: undefined, isLoading: true, isError: false });
 		promiseObject
 			.then((data) => {
-				store.set({ data, isLoading: false, isError: false });
+				store.set({ promise: undefined, data, isLoading: false, isError: false });
 			})
 			.catch(() => {
-				store.set({ data: undefined, isLoading: false, isError: true });
+				store.set({ promise: undefined, data: undefined, isLoading: false, isError: true });
 			});
 	}
 

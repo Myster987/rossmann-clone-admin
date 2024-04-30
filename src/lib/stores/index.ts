@@ -1,13 +1,11 @@
 import { derived, writable } from 'svelte/store';
+import { createAsyncStore } from './async_stores';
 import type { User } from 'lucia';
 import type { SelectCompanies, SelectProduct } from '@/db/schema';
-import { createAsyncStore } from './async_stores';
 
 export const userStore = writable<User | null>(null);
 
-export const productsStore = writable<SelectProduct[]>([]);
-
-export const companiesStore = writable<SelectCompanies[]>([]);
+export const asyncProductsStore = createAsyncStore<SelectProduct[]>();
 
 export const asyncCompaniesStore = createAsyncStore<SelectCompanies[]>();
 

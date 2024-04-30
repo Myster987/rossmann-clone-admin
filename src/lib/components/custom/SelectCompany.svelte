@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { companiesStore, selectedCompany, asyncCompaniesStore } from '@/stores';
+	import { selectedCompany, asyncCompaniesStore } from '@/stores';
 	import { Store, CircleFadingPlus } from 'lucide-svelte';
 	import { Button } from '@/components/ui/button';
 	import { Skeleton } from '@/components/ui/skeleton';
@@ -9,13 +9,16 @@
 
 	let { selectItem } = selectedCompany;
 
-	onMount(() => {
+	onMount(async () => {
 		const { companyId } = $page.params;
-		$companiesStore.forEach((value) => {
-			if (value.id == companyId) {
-				$selectedCompany = value;
-			}
-		});
+		if ($asyncCompaniesStore.promise) {
+			const promiseResult = await $asyncCompaniesStore.promise;
+			promiseResult.forEach((value) => {
+				if (value.id == companyId) {
+					$selectedCompany = value;
+				}
+			});
+		}
 	});
 </script>
 

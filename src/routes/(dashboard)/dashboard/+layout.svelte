@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { MainHeader, MobileHeader } from '@/components/navigation';
-	import { companiesStore, asyncCompaniesStore } from '@/stores';
+	import { asyncCompaniesStore } from '@/stores';
 	import type { LayoutData } from './$types';
 
 	export let data: LayoutData;
-	$companiesStore = data.companies;
-	$: $companiesStore = data.companies;
 	$: asyncCompaniesStore.updateAsync(data.streamed.companies);
 </script>
 

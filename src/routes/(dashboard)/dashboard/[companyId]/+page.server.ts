@@ -6,10 +6,12 @@ export const load: PageServerLoad = async ({ params: { companyId }, locals: { ho
 			param: { companyId }
 		});
 		const products = await res.json();
-		return products.data;
+		return products.data || [];
 	};
 
 	return {
-		products: await fetchCompanyProducts()
+		streamed: {
+			products: fetchCompanyProducts()
+		}
 	};
 };

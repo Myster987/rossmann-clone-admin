@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import { createHonoClient } from '@/api/client';
-	import { productsStore } from '@/stores';
+	import { asyncProductsStore } from '@/stores';
 	import { toast } from 'svelte-sonner';
 	import { Button } from '@/components/ui/button';
 	import { Trash2 } from 'lucide-svelte';
@@ -28,7 +28,7 @@
 		if (data.success) {
 			toast.success(`Pomyślnie usunięto ${Object.keys($selectedRows).length} produkt(y).`);
 			$selectedRows = {};
-			$productsStore = $productsStore.filter(
+			$asyncProductsStore.data = $asyncProductsStore.data?.filter(
 				(product) => !currentlySelectedRows.includes(product.id)
 			);
 		} else {
@@ -40,7 +40,7 @@
 
 <Button
 	variant="destructive"
-	disabled={currentlySelectedRows.length == 0}
+	disabled={currentlySelectedRows.length == 0 || $asyncProductsStore.isLoading}
 	on:click={handleDeleteSelectedProducts}
 	class="flex items-center gap-1"
 >

@@ -6,12 +6,12 @@ export const load: LayoutServerLoad = async ({ locals: { user, honoClient } }) =
 			param: { userId: user?.id || '' }
 		});
 		const { data } = await res.json();
+
 		return data || [];
 	};
 	return {
 		streamed: {
 			companies: fetchUserCompanies()
-		},
-		companies: await fetchUserCompanies()
+		}
 	};
 };
