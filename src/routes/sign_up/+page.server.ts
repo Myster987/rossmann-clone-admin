@@ -4,8 +4,8 @@ import { Argon2id } from 'oslo/password';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { signUpFormSchema } from '@/auth/form_schemas';
-import { insertUser } from '@/db/queries';
 import { createUserSession } from '@/auth/handlers';
+import { insertUser } from '@/db/queries';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -26,7 +26,7 @@ export const actions: Actions = {
 		const userId = generateId(20);
 		const hashedPassword = await new Argon2id().hash(formData.password);
 
-		const success = await insertUser.run({
+		const success = await insertUser.execute({
 			id: userId,
 			email: formData.email,
 			password: hashedPassword

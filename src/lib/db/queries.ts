@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { db } from '.';
 import * as schema from './schema';
 
@@ -15,24 +15,7 @@ export const insertUser = db
 		email: sql.placeholder('email'),
 		password: sql.placeholder('password')
 	})
-	.onConflictDoNothing({ target: schema.users.email })
-	.returning()
-	.prepare();
-
-export const insertCompany = db
-	.insert(schema.companies)
-	.values({
-		id: sql.placeholder('id'),
-		name: sql.placeholder('name'),
-		userId: sql.placeholder('userId')
-	})
-	.returning()
-	.prepare();
-
-export const deleteCompany = db
-	.delete(schema.companies)
-	.where(eq(schema.companies.id, sql.placeholder('id')))
-	.returning()
+	.onConflictDoNothing()
 	.prepare();
 
 export const queryUsersCompanies = db
@@ -47,10 +30,24 @@ export const queryAllCompanyProducts = db
 	.where(eq(schema.products.companyId, sql.placeholder('companyId')))
 	.prepare();
 
+export const queryAllCompanyProductsWithImages = db
+	.select()
+	.from(schema.products)
+	.where(eq(schema.products.companyId, sql.placeholder('companyId')))
+	.innerJoin(schema.images, eq(schema.products.id, schema.images.productId))
+	.prepare();
+
 export const queryProductById = db
 	.select()
 	.from(schema.products)
 	.where(eq(schema.products.id, sql.placeholder('id')))
+	.prepare();
+
+export const queryProductByIdWithImages = db
+	.select()
+	.from(schema.products)
+	.where(eq(schema.products.id, sql.placeholder('id')))
+	.innerJoin(schema.images, eq(schema.products.id, schema.images.productId))
 	.prepare();
 
 export const insertProduct = db
@@ -60,15 +57,45 @@ export const insertProduct = db
 		companyId: sql.placeholder('companyId'),
 		name: sql.placeholder('name'),
 		price: sql.placeholder('price'),
+		category: sql.placeholder('category'),
 		description: sql.placeholder('description'),
-		ingredients: sql.placeholder('ingredients'),
-		imageKey: sql.placeholder('imageKey'),
-		imageUrl: sql.placeholder('imageUrl')
+		ingredients: sql.placeholder('ingredients')
 	})
 	.prepare();
 
 export const deleteProduct = db
 	.delete(schema.products)
-	.where(eq(schema.products.id, sql.placeholder('productId')))
+	.where(eq(schema.products.id, sql.placeholder('id')))
+	.returning()
+	.prepare();
+
+// export const deleteProducts = db
+// 	.delete(schema.products)
+// 	.where(inArray(schema.products.id, sql.placeholder('productIds')))
+// 	.returning()
+// 	.prepare();
+
+export async function deleteImages(productIds: string[]) {
+	return Promise.all(productIds.map((productId) => deleteImagesOfProduct.all({ productId })));
+}
+
+export const deleteImagesOfProduct = db
+	.delete(schema.images)
+	.where(eq(schema.images.productId, sql.placeholder('productId')))
+	.returning()
+	.prepare();
+
+export const insertCompany = db
+	.insert(schema.companies)
+	.values({
+		id: sql.placeholder('id'),
+		name: sql.placeholder('name'),
+		userId: sql.placeholder('userId')
+	})
+	.prepare();
+
+export const deleteCompany = db
+	.delete(schema.companies)
+	.where(eq(schema.companies.id, sql.placeholder('companyId')))
 	.returning()
 	.prepare();

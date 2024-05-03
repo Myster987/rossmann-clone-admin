@@ -58,11 +58,14 @@ export const addProductFormSchema = z.object({
 		.number({ required_error: 'Cena jest wymagana' })
 		.lte(999999, 'Cena jest zbyt duża')
 		.positive('Cena musi być większa od 0'),
+	category: z.string({ required_error: 'Kategoria jest wymagana' }).trim(),
 	description: z.string({ required_error: 'Opis jest wymagany' }).trim(),
 	ingredients: z.string({ required_error: 'Skład jest wymagany' }).trim(),
-	image: z
+	images: z
 		.instanceof(File, { message: 'Zdjęcie jest wymagane' })
 		.refine((file) => file.size > 0, 'Zdjęcie musi mieć więcej niż 0 kb')
+		.array()
+		.nonempty({ message: 'Minimum jedno zdjęcie jest wymagane' })
 });
 export type AddProductFormSchema = typeof addProductFormSchema;
 
@@ -75,15 +78,17 @@ export type EditProductFormSchema = typeof editProductFormSchema;
 
 export const apiEditProductFormSchema = editProductFormSchema
 	.omit({
-		image: true
+		images: true
 	})
 	.extend({
-		image: z
+		images: z
 			.union([
 				z.string(),
+
 				z
 					.instanceof(File, { message: 'Zdjęcie jest wymagane' })
 					.refine((file) => file.size > 0, 'Zdjęcie musi mieć więcej niż 0 kb')
+					.array()
 			])
 			.optional()
 	});

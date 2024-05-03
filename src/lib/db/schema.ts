@@ -45,13 +45,24 @@ export const products = sqliteTable('products', {
 		}),
 	name: text('name').notNull(),
 	price: real('price').notNull(),
+	category: text('category').notNull(),
 	description: text('description').notNull(),
-	ingredients: text('ingredients').notNull(),
-	imageKey: text('image_key').notNull(),
-	imageUrl: text('image_url').notNull()
+	ingredients: text('ingredients').notNull()
 });
 export type SelectProduct = InferSelectModel<typeof products>;
 export type InsertProduct = InferInsertModel<typeof products>;
+
+export const images = sqliteTable('images', {
+	id: text('id').primaryKey(),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	productId: text('product_id')
+		.notNull()
+		.references(() => products.id, { onDelete: 'cascade' }),
+	imagePublicId: text('image_public_id').notNull(),
+	imageUrl: text('image_url').notNull()
+});
+export type SelectImages = InferSelectModel<typeof images>;
+export type InsertImages = InferInsertModel<typeof images>;
 
 export const cart = sqliteTable('cart', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -59,9 +70,7 @@ export const cart = sqliteTable('cart', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
-	companyId: text('company_id').references(() => companies.id, {
-		onDelete: 'set null'
-	})
+	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
 export type SelectCart = InferSelectModel<typeof cart>;
 export type InsertCart = InferInsertModel<typeof cart>;
@@ -72,9 +81,7 @@ export const favorite = sqliteTable('favorite', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
-	companyId: text('company_id').references(() => companies.id, {
-		onDelete: 'set null'
-	})
+	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
 export type SelectFavorite = InferSelectModel<typeof favorite>;
 export type InsertFavorite = InferInsertModel<typeof favorite>;
@@ -82,13 +89,23 @@ export type InsertFavorite = InferInsertModel<typeof favorite>;
 export const orders = sqliteTable('orders', {
 	id: text('id').primaryKey(),
 	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	companyId: text('company_id').references(() => companies.id, { onDelete: 'cascade' }),
 	fulfilledAt: text('fulfilled_at'),
-	status: integer('status', { mode: 'boolean' }).default(false),
-	userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
-	productId: text('product_id')
-		.notNull()
-		.references(() => products.id, { onDelete: 'cascade' }),
-	amount: real('amount').notNull()
+	status: text('status').default('pending')
 });
 export type SelectOrders = InferSelectModel<typeof orders>;
 export type InsertOrders = InferInsertModel<typeof orders>;
+
+export const orderProduct = sqliteTable('order_product', {
+	id: text('id').primaryKey(),
+	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+	orderId: text('order_id').references(() => orders.id, { onDelete: 'cascade' }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	productId: text('product_id')
+		.notNull()
+		.references(() => products.id, { onDelete: 'cascade' })
+});
+export type SelectOrdersProduct = InferSelectModel<typeof orderProduct>;
+export type InsertOrdersProduct = InferInsertModel<typeof orderProduct>;

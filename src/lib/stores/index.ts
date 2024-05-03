@@ -28,5 +28,3 @@ const createSelectedCompanyStore = (initialValue: SelectCompanies | undefined) =
 };
 
 export const selectedCompany = createSelectedCompanyStore(undefined);
-
-export const windowWidthStore = writable(0);

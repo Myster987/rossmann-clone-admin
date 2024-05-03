@@ -8,6 +8,7 @@
 	import { Separator } from '@/components/ui/separator';
 	import * as Form from '@/components/ui/form';
 	import { toast } from 'svelte-sonner';
+	import { ImageUpload } from '@/components/ui/image-upload';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -46,6 +47,14 @@
 	</div>
 	<Separator />
 	<form method="post" enctype="multipart/form-data" use:enhance class="flex flex-col gap-5">
+		<Form.Field {form} name="images">
+			<Form.Control>
+				<Form.Label class="text-lg">Zdjęcia</Form.Label>
+				<ImageUpload superform={form} field="images" />
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			<Form.Field {form} name="name">
 				<Form.Control let:attrs>
@@ -75,19 +84,6 @@
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Skład</Form.Label>
 					<Input {...attrs} bind:value={$formData.ingredients} />
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
-
-			<Form.Field {form} name="image">
-				<Form.Control let:attrs>
-					<Form.Label class="text-lg">Zdjęcie</Form.Label>
-					<Input
-						{...attrs}
-						type="file"
-						accept="image/*"
-						on:input={(e) => ($formData.image = e.currentTarget.files?.item(0) || new File([], ''))}
-					/>
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>

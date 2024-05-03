@@ -7,6 +7,7 @@
 	import * as Form from '@/components/ui/form';
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/stores';
+	import { ImageUpload } from '@/components/ui/image-upload';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -15,6 +16,7 @@
 		validators: zodClient(addProductFormSchema),
 		onSubmit({ formData }) {
 			formData.append('companyId', $page.params.companyId);
+			$formData.images.forEach((image) => formData.append('images', image));
 			toast.loading('Proszę czekać...');
 		},
 		onUpdated({ form }) {
@@ -44,6 +46,14 @@
 		use:enhance
 		class="flex flex-col gap-5"
 	>
+		<Form.Field {form} name="images">
+			<Form.Control>
+				<Form.Label class="text-lg">Zdjęcia</Form.Label>
+				<ImageUpload superform={form} field="images" />
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+
 		<div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			<Form.Field {form} name="name">
 				<Form.Control let:attrs>
@@ -61,6 +71,14 @@
 				<Form.FieldErrors />
 			</Form.Field>
 
+			<Form.Field {form} name="category">
+				<Form.Control let:attrs>
+					<Form.Label class="text-lg">Kategoria</Form.Label>
+					<Input {...attrs} bind:value={$formData.category} />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+
 			<Form.Field {form} name="description">
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Opis</Form.Label>
@@ -73,19 +91,6 @@
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Skład</Form.Label>
 					<Input {...attrs} bind:value={$formData.ingredients} />
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
-
-			<Form.Field {form} name="image">
-				<Form.Control let:attrs>
-					<Form.Label class="text-lg">Zdjęcie</Form.Label>
-					<Input
-						{...attrs}
-						type="file"
-						accept="image/*"
-						on:input={(e) => ($formData.image = e.currentTarget.files?.item(0) || new File([], ''))}
-					/>
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>

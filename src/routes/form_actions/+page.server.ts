@@ -29,7 +29,7 @@ export const actions: Actions = {
 			success: true
 		};
 	},
-	addProduct: async ({ request, locals: { honoClient } }) => {
+	addProduct: async ({ request, fetch }) => {
 		const form = await superValidate(request, zod(addProductFormSchema));
 
 		if (!form.valid) {
@@ -37,15 +37,24 @@ export const actions: Actions = {
 		}
 
 		const formData = form.data;
+		const body = new FormData();
 
-		const res = await honoClient.api.products.$post({
-			form: {
-				...formData,
-				price: formData.price as unknown as string
+		Object.entries(formData).forEach(([key, val]) => {
+			if (key == 'images') {
+				(val as File[]).forEach((image) => {
+					body.append('images[]', image);
+				});
+			} else {
+				body.append(key, val as string);
 			}
 		});
 
-		const data = await res.json();
+		const res = await fetch('api/products', {
+			body,
+			method: 'POST'
+		});
+
+		const data: { success: boolean } = await res.json();
 
 		if (!data.success) {
 			return message(

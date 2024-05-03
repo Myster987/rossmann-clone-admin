@@ -9,7 +9,7 @@
 		addHiddenColumns,
 		addSelectedRows
 	} from 'svelte-headless-table/plugins';
-	import { windowWidthStore, asyncProductsStore } from '@/stores';
+	import { asyncProductsStore } from '@/stores';
 	import {
 		ArrowUpDown,
 		ChevronDown,
@@ -104,8 +104,8 @@
 			}
 		}),
 		table.column({
-			accessor: 'imageUrl',
-			header: 'Zdjęcie',
+			accessor: 'category',
+			header: 'Kategoria',
 			plugins: {
 				sort: {
 					disable: true
@@ -144,23 +144,12 @@
 	let hideForId = Object.fromEntries(ids.map((id) => [id, true]));
 
 	$: {
-		if ($windowWidthStore < 830 && $windowWidthStore > 0) {
-			if (hideForId['imageUrl']) {
-				hideForId['imageUrl'] = false;
-			}
-		} else if ($windowWidthStore >= 830) {
-			if (!hideForId['imageUrl']) {
-				hideForId['imageUrl'] = true;
-			}
-		}
-	}
-	$: {
 		$hiddenColumnIds = Object.entries(hideForId)
 			.filter(([, hide]) => !hide)
 			.map(([id]) => id);
 	}
 
-	const hidableCols = ['createdAt', 'price', 'imageUrl'];
+	const hidableCols = ['createdAt', 'price', 'category'];
 </script>
 
 <div class="h-full">

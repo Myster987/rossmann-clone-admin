@@ -17,19 +17,42 @@ async function uploadImage(image: File) {
 	const buffer = Buffer.from(arrayBuffer);
 	const uploadImage = new Promise<UploadApiErrorResponse | UploadApiResponse>((resolve, reject) => {
 		cloudinary.uploader
-			.upload_stream({ format: 'webp' }, (error, result) => {
-				if (error || !result) {
-					console.error(error);
-					console.log(`Error in uploadImage: result = ${JSON.stringify(result)}`);
+			.upload_stream(
+				{
+					format: 'webp',
+					transformation: { height: 800, width: 400 }
+				},
+				(error, result) => {
+					if (error || !result) {
+						console.error(error);
+						console.log(`Error in uploadImage: result = ${JSON.stringify(result)}`);
 
-					reject(error);
-				} else {
-					resolve(result);
+						reject(error);
+					} else {
+						resolve(result);
+					}
 				}
-			})
+			)
 			.end(buffer);
 	});
 	return uploadImage;
 }
 
-export { cloudinary, uploadImage };
+async function uploadMultipleImages(images: File[]) {
+	return Promise.all(images.map((image) => uploadImage(image)));
+}
+
+async function deleteImagesFromCloudinary(publicIds: string[]): Promise<boolean> {
+	if (publicIds.length != 0) {
+		return cloudinary.api.delete_resources(publicIds, (err, res) => {
+			if (err) {
+				return false;
+			} else {
+				return true;
+			}
+		});
+	}
+	return true;
+}
+
+export { cloudinary, uploadImage, uploadMultipleImages, deleteImagesFromCloudinary };
