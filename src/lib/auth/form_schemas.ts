@@ -66,12 +66,22 @@ export const addProductFormSchema = z.object({
 		.refine((file) => file.size > 0, 'Zdjęcie musi mieć więcej niż 0 kb')
 		.array()
 		.nonempty({ message: 'Minimum jedno zdjęcie jest wymagane' })
+		.max(5, 'Maksimum 5 zdjęć')
 });
 export type AddProductFormSchema = typeof addProductFormSchema;
 
 export const editProductFormSchema = addProductFormSchema
 	.omit({
-		companyId: true
+		companyId: true,
+		images: true
+	})
+	.extend({
+		images: z
+			.instanceof(File, { message: 'Zdjęcie jest wymagane' })
+			.refine((file) => file.size > 0, 'Zdjęcie musi mieć więcej niż 0 kb')
+			.array()
+			.max(5, 'Maksimum 5 zdjęć')
+			.nonempty({ message: 'Minimum jedno zdjęcie jest wymagane' })
 	})
 	.partial();
 export type EditProductFormSchema = typeof editProductFormSchema;
@@ -84,11 +94,11 @@ export const apiEditProductFormSchema = editProductFormSchema
 		images: z
 			.union([
 				z.string(),
-
 				z
 					.instanceof(File, { message: 'Zdjęcie jest wymagane' })
 					.refine((file) => file.size > 0, 'Zdjęcie musi mieć więcej niż 0 kb')
 					.array()
+					.max(5, 'Maksimum 5 zdjęć')
 			])
 			.optional()
 	});

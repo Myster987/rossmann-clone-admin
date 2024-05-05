@@ -10,43 +10,71 @@ import {
 	deleteProduct,
 	insertProduct,
 	queryAllCompanyProducts,
+	queryAllCompanyProductsWithImages,
 	queryProductById,
 	queryProductByIdWithImages
 } from '@/db/queries';
 import { generateId } from 'lucia';
-import { addProductFormSchema, apiEditProductFormSchema } from '@/auth/form_schemas';
+import { addProductFormSchema, editProductFormSchema } from '@/auth/form_schemas';
 import { deleteImagesFromCloudinary, uploadMultipleImages } from '../cloudinary';
+
+const withImages = new Hono()
+	.get('/:productId', async (c) => {
+		try {
+			const { productId } = c.req.param();
+			const data = await queryProductByIdWithImages.all({ id: productId });
+			const product = data[0].products;
+			const images = data.map(({ images }) => images);
+			return c.json({
+				success: true,
+				product,
+				images
+			});
+		} catch (error) {
+			console.log(error);
+			return c.json({
+				success: false,
+				product: null,
+				images: null
+			});
+		}
+	})
+	.get('/company/:companyId', async (c) => {
+		try {
+			const { companyId } = c.req.param();
+			const data = await queryAllCompanyProductsWithImages.all({ companyId });
+			return c.json({
+				sucess: true,
+				data
+			});
+		} catch (error) {
+			console.log(error);
+			return c.json({
+				success: false,
+				data: null
+			});
+		}
+	});
 
 export const products = new Hono()
 	.basePath('/products')
-	.get(
-		'/:productId',
-		zValidator('query', z.object({ images: z.boolean().default(false) })),
-		async (c) => {
-			try {
-				const { productId } = c.req.param();
-				const { images } = c.req.valid('query');
-
-				// type Data = schema.SelectProduct |
-
-				let data;
-				if (images) {
-				} else {
-					data = await queryProductById.get({ id: productId });
-				}
-				return c.json({
-					success: true,
-					product: data
-				});
-			} catch (error) {
-				console.log(error);
-				return c.json({
-					success: false,
-					product: null
-				});
-			}
+	.route('/withImages', withImages)
+	.get('/:productId', async (c) => {
+		try {
+			const { productId } = c.req.param();
+			const data = await queryProductById.get({ id: productId });
+			return c.json({
+				success: true,
+				product: data
+			});
+		} catch (error) {
+			console.log(error);
+			return c.json({
+				success: false,
+				product: null
+			});
 		}
-	)
+	})
 	.get('/company/:companyId', async (c) => {
 		try {
 			const { companyId } = c.req.param();
@@ -193,90 +221,91 @@ export const products = new Hono()
 			});
 		}
 	})
-	.patch(
-		'/:productId',
-		zValidator('form', apiEditProductFormSchema, (result, c) => {
-			if (!result.success) {
-				return c.json(
-					{
-						success: false
-					},
-					400
+	.patch('/:productId', async (c) => {
+		try {
+			interface Body extends Omit<z.infer<typeof editProductFormSchema>, 'images'> {
+				'images[]': File[];
+			}
+			const { productId } = c.req.param();
+			const body = (await c.req.parseBody({ all: true })) as unknown as Body;
+			if (!Array.isArray(body['images[]'])) {
+				body['images[]'] = [body['images[]']];
+			}
+			const product = await queryProductById.get({ id: productId });
+			const newProduct: Partial<schema.InsertProduct> = {};
+
+			if (typeof product == 'undefined') {
+				throw Error(`Product (product id - ${product}) does not exist`);
+			}
+
+			if (typeof body['images[]'] != 'undefined' && typeof body['images[]'] != 'string') {
+				const imagesToDelete = await deleteImagesOfProduct.all({ productId });
+
+				const fileDeleteResult = await deleteImagesFromCloudinary(
+					imagesToDelete.map((image) => image.imagePublicId)
+				);
+				if (!fileDeleteResult) {
+					throw Error(`Something went wrong with deleting product (id: ${productId}) image`);
+				}
+
+				const uploadData = await uploadMultipleImages(body['images[]']);
+
+				if (!uploadData) {
+					return c.json(
+						{
+							success: false
+						},
+						400
+					);
+				}
+				await db.insert(schema.images).values(
+					uploadData.map((image) => {
+						return {
+							id: generateId(20),
+							imagePublicId: image.public_id,
+							imageUrl: image.secure_url,
+							productId: productId
+						};
+					})
 				);
 			}
-		}),
-		async (c) => {
-			try {
-				const { productId } = c.req.param();
-				const body = c.req.valid('form');
-				const product = await queryProductById.get({ id: productId });
-				const newProduct: Partial<schema.InsertProduct> = {};
 
-				if (typeof product == 'undefined') {
-					throw Error(`Product (product id - ${product}) does not exist`);
-				}
+			if (body.name != product.name) {
+				newProduct['name'] = body.name;
+			}
+			if (body.price != product.price) {
+				newProduct['price'] = body.price;
+			}
+			if (body.category != product.category) {
+				newProduct['category'] = body.category;
+			}
+			if (body.description != product.description) {
+				newProduct['description'] = body.description;
+			}
+			if (body.ingredients != product.ingredients) {
+				newProduct['price'] = body.price;
+			}
 
-				if (typeof body.images != 'undefined' && typeof body.images != 'string') {
-					const imagesToDelete = await queryProductByIdWithImages.all({ id: productId });
-					const fileDeleteResult = await deleteImagesFromCloudinary(
-						imagesToDelete.map(({ images }) => images.imagePublicId)
-					);
-					if (!fileDeleteResult) {
-						throw Error(`Something went wrong with deleting product (id: ${productId}) image`);
-					}
-
-					const uploadData = await uploadMultipleImages(body.images);
-
-					if (!uploadData) {
-						return c.json(
-							{
-								success: false
-							},
-							400
-						);
-					}
-					await db.insert(schema.images).values(
-						uploadData.map((image) => {
-							return {
-								id: generateId(20),
-								imagePublicId: image.public_id,
-								imageUrl: image.secure_url,
-								productId: productId
-							};
-						})
-					);
-				}
-
-				if (body.name != product.name) {
-					newProduct['name'] = body.name;
-				}
-				if (body.price != product.price) {
-					newProduct['price'] = body.price;
-				}
-				if (body.category != product.category) {
-					newProduct['category'] = body.category;
-				}
-				if (body.description != product.description) {
-					newProduct['description'] = body.description;
-				}
-				if (body.ingredients != product.ingredients) {
-					newProduct['price'] = body.price;
-				}
-
+			if (Object.keys(newProduct).length != 0) {
 				await db
 					.update(schema.products)
 					.set({
 						...newProduct
 					})
 					.where(eq(schema.products.id, productId));
-
-				return c.json({
-					success: true
-				});
-			} catch (error) {
-				return c.json({
-					success: false
-				});
 			}
+
+			return c.json({
+				success: true
+			});
+		} catch (error) {
+			console.log(error);
+
+			return c.json(
+				{
+					success: false
+				},
+				500
+			);
 		}
-	);
+	});

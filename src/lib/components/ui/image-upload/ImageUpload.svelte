@@ -8,16 +8,28 @@
 	export let field: FormPathArrays<T>;
 
 	const { values, valueErrors } = filesFieldProxy(superform, field);
+
+	const fetchImage = async (url: string, name: string) => {
+		const res = await fetch(url);
+		const blob = await res.blob();
+		return new File([blob], name);
+	};
+
+	const fetchMultipleImages = async (urls: string[]) => {
+		return Promise.all(urls.map((url, index) => fetchImage(url, `${index}.wepb`))) as Promise<
+			[File, ...File[]]
+		>;
+	};
 </script>
 
 <div>
 	<div class="mb-4 flex items-center gap-4">
 		{#each $values as file (file.name)}
-			<div class="relative h-[350px] w-[150px] overflow-hidden rounded-md">
+			<div class="relative h-[350px] w-[175px] overflow-hidden rounded-md">
 				<img
 					src={URL.createObjectURL(file)}
 					alt={file.name}
-					class="h-full w-full object-cover"
+					class="h-full w-full object-fill"
 					on:load={(e) => URL.revokeObjectURL(e.target?.src)}
 				/>
 				<Button

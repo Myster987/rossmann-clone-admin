@@ -14,9 +14,11 @@
 	export let data: PageData;
 	let { form: formObject } = data;
 	const form = superForm(formObject as SuperValidated<Infer<EditProductFormSchema>>, {
-		invalidateAll: 'force',
 		validators: zodClient(editProductFormSchema),
-		onSubmit() {
+		resetForm: false,
+		onSubmit({ formData }) {
+			formData.append('companyId', $page.params.companyId);
+			$formData.images?.forEach((image) => formData.append('images', image));
 			toast.loading('Proszę czekać...');
 		},
 		onUpdated({ form }) {
@@ -34,9 +36,22 @@
 
 	let goBack = '/dashboard';
 
-	onMount(() => {
+	const fetchImage = async (url: string, name: string) => {
+		const res = await fetch(url);
+		const blob = await res.blob();
+		return new File([blob], name);
+	};
+
+	const fetchMultipleImages = async (urls: string[]) => {
+		return Promise.all(urls.map((url, index) => fetchImage(url, `${index}.wepb`))) as Promise<
+			[File, ...File[]]
+		>;
+	};
+
+	onMount(async () => {
 		const { companyId } = $page.params;
 		goBack = `/dashboard/${companyId}`;
+		$formData.images = await fetchMultipleImages($formData.images as unknown as string[]);
 	});
 </script>
 
@@ -68,6 +83,14 @@
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Cena</Form.Label>
 					<Input {...attrs} bind:value={$formData.price} />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+
+			<Form.Field {form} name="category">
+				<Form.Control let:attrs>
+					<Form.Label class="text-lg">Kategoria</Form.Label>
+					<Input {...attrs} bind:value={$formData.category} />
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
