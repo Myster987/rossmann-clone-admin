@@ -46,13 +46,15 @@
 			>
 				<input type="text" name="id" value={id} hidden />
 				<button class="flex items-center gap-2">
-					<Trash2 />
+					<Trash2 size="22" />
 					Usuń
 				</button>
 			</form>
 		</DropdownMenu.Item>
 		<a href="/dashboard/{$selectedCompany?.id}/edit_product/{id}">
-			<DropdownMenu.Item class="flex gap-2 py-2"><SquarePen /> Edytuj produkt</DropdownMenu.Item>
+			<DropdownMenu.Item class="flex gap-2 py-2"
+				><SquarePen size="22" /> Edytuj produkt</DropdownMenu.Item
+			>
 		</a>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

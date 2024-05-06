@@ -8,18 +8,6 @@
 	export let field: FormPathArrays<T>;
 
 	const { values, valueErrors } = filesFieldProxy(superform, field);
-
-	const fetchImage = async (url: string, name: string) => {
-		const res = await fetch(url);
-		const blob = await res.blob();
-		return new File([blob], name);
-	};
-
-	const fetchMultipleImages = async (urls: string[]) => {
-		return Promise.all(urls.map((url, index) => fetchImage(url, `${index}.wepb`))) as Promise<
-			[File, ...File[]]
-		>;
-	};
 </script>
 
 <div>
