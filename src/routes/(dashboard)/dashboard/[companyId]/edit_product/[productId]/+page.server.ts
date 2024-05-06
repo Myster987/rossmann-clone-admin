@@ -5,7 +5,7 @@ import { editProductFormSchema } from '@/auth/form_schemas';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params: { productId }, locals: { honoClient } }) => {
-	const res = await honoClient.api.products[':productId'].$get({
+	const res = await honoClient.api.products.withImages[':productId'].$get({
 		param: {
 			productId
 		}
@@ -17,7 +17,9 @@ export const load: PageServerLoad = async ({ params: { productId }, locals: { ho
 			name: data.product?.name,
 			price: data.product?.price,
 			description: data.product?.description,
-			ingredients: data.product?.ingredients
+			ingredients: data.product?.ingredients,
+			category: data.product?.category,
+			images: data.images?.map((image) => image.imageUrl) as unknown as [File, ...File[]]
 		}
 	});
 
@@ -39,7 +41,7 @@ export const load: PageServerLoad = async ({ params: { productId }, locals: { ho
 };
 
 export const actions: Actions = {
-	default: async ({ request, params: { productId }, locals: { honoClient } }) => {
+	default: async ({ request, params: { productId }, fetch }) => {
 		const form = await superValidate(request, zod(editProductFormSchema));
 
 		if (!form.valid) {
@@ -48,15 +50,23 @@ export const actions: Actions = {
 			});
 		}
 		const formData = form.data;
+		const body = new FormData();
 
-		const res = await honoClient.api.products[':productId'].$patch({
-			param: { productId },
-			form: {
-				...formData,
-				price: formData.price as unknown as string
+		Object.entries(formData).forEach(([key, val]) => {
+			if (key == 'images') {
+				(val as File[]).forEach((image) => {
+					body.append('images[]', image);
+				});
+			} else {
+				body.append(key, val as string);
 			}
 		});
-		const data = await res.json();
+
+		const res = await fetch(`/api/products/${productId}`, {
+			body,
+			method: 'PATCH'
+		});
+		const data: { success: boolean } = await res.json();
 
 		if (!data.success) {
 			return message(

@@ -1,14 +1,10 @@
 <script lang="ts">
-	import { userStore } from '@/stores';
-
 	const sectionHeaderCss = 'text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold';
 </script>
 
 <main class="p-3 pb-8">
-	<section class="flex h-[20vh] items-center justify-center md:h-[30vh] lg:h-[45vh]">
-		<h1 class="text-center text-2xl font-semibold sm:text-4xl md:text-5xl lg:text-7xl">
-			Witaj <b>{$userStore?.email}</b>
-		</h1>
+	<section class="flex h-[20vh] items-center justify-center md:h-[30vh] lg:h-[40vh]">
+		<h1 class="text-center text-5xl font-bold sm:text-6xl md:text-7xl lg:text-8xl">Witaj</h1>
 	</section>
 
 	<div class="grid gap-10 sm:gap-[5rem]">

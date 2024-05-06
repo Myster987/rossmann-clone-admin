@@ -8,14 +8,17 @@
 	import { Separator } from '@/components/ui/separator';
 	import * as Form from '@/components/ui/form';
 	import { toast } from 'svelte-sonner';
+	import { ImageUpload } from '@/components/ui/image-upload';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 	let { form: formObject } = data;
 	const form = superForm(formObject as SuperValidated<Infer<EditProductFormSchema>>, {
-		invalidateAll: 'force',
 		validators: zodClient(editProductFormSchema),
-		onSubmit() {
+		resetForm: false,
+		onSubmit({ formData }) {
+			formData.append('companyId', $page.params.companyId);
+			$formData.images?.forEach((image) => formData.append('images', image));
 			toast.loading('Proszę czekać...');
 		},
 		onUpdated({ form }) {
@@ -33,9 +36,22 @@
 
 	let goBack = '/dashboard';
 
-	onMount(() => {
+	const fetchImage = async (url: string, name: string) => {
+		const res = await fetch(url);
+		const blob = await res.blob();
+		return new File([blob], name);
+	};
+
+	const fetchMultipleImages = async (urls: string[]) => {
+		return Promise.all(urls.map((url, index) => fetchImage(url, `${index}.wepb`))) as Promise<
+			[File, ...File[]]
+		>;
+	};
+
+	onMount(async () => {
 		const { companyId } = $page.params;
 		goBack = `/dashboard/${companyId}`;
+		$formData.images = await fetchMultipleImages($formData.images as unknown as string[]);
 	});
 </script>
 
@@ -46,6 +62,14 @@
 	</div>
 	<Separator />
 	<form method="post" enctype="multipart/form-data" use:enhance class="flex flex-col gap-5">
+		<Form.Field {form} name="images">
+			<Form.Control>
+				<Form.Label class="text-lg">Zdjęcia</Form.Label>
+				<ImageUpload superform={form} field="images" />
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+
 		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			<Form.Field {form} name="name">
 				<Form.Control let:attrs>
@@ -63,6 +87,14 @@
 				<Form.FieldErrors />
 			</Form.Field>
 
+			<Form.Field {form} name="category">
+				<Form.Control let:attrs>
+					<Form.Label class="text-lg">Kategoria</Form.Label>
+					<Input {...attrs} bind:value={$formData.category} />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+
 			<Form.Field {form} name="description">
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Opis</Form.Label>
@@ -75,19 +107,6 @@
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Skład</Form.Label>
 					<Input {...attrs} bind:value={$formData.ingredients} />
-				</Form.Control>
-				<Form.FieldErrors />
-			</Form.Field>
-
-			<Form.Field {form} name="image">
-				<Form.Control let:attrs>
-					<Form.Label class="text-lg">Zdjęcie</Form.Label>
-					<Input
-						{...attrs}
-						type="file"
-						accept="image/*"
-						on:input={(e) => ($formData.image = e.currentTarget.files?.item(0) || new File([], ''))}
-					/>
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>

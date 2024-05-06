@@ -3,16 +3,16 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { generateId } from 'lucia';
 import {
-	deleteCompany,
+	queryUsersCompanies,
+	queryAllCompanyProductsWithImages,
 	insertCompany,
-	queryAllCompanyProducts,
-	queryUsersCompanies
+	deleteCompany
 } from '@/db/queries';
 import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { editCompanyFormSchema } from '@/auth/form_schemas';
-import { cloudinary } from '../cloudinary';
+import { cloudinary, deleteImagesFromCloudinary } from '../cloudinary';
 
 const postCompanySchema = z.object({
 	name: z.string(),
@@ -95,17 +95,11 @@ export const companies = new Hono()
 		try {
 			const { companyId } = c.req.param();
 
-			const products = await queryAllCompanyProducts.all({ companyId });
-			const res = await cloudinary.api.delete_resources(
-				products.map((product) => product.imageKey),
-				(err, res) => {
-					console.log(res, err);
-					if (err) {
-						return false;
-					} else {
-						return true;
-					}
-				}
+			const products = await queryAllCompanyProductsWithImages.all({ companyId });
+			console.log(products);
+
+			const res = await deleteImagesFromCloudinary(
+				products.map(({ images }) => images.imagePublicId)
 			);
 
 			if (!res) {
@@ -116,8 +110,7 @@ export const companies = new Hono()
 					500
 				);
 			}
-
-			const queryResult = await deleteCompany.get({ id: companyId });
+			const queryResult = await deleteCompany.run({ companyId });
 			if (!queryResult) {
 				return c.json(
 					{
