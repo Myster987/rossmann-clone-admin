@@ -27,15 +27,13 @@ const withImages = new Hono()
 			const images = data.map(({ images }) => images);
 			return c.json({
 				success: true,
-				product,
-				images
+				data: { product, images }
 			});
 		} catch (error) {
 			console.log(error);
 			return c.json({
 				success: false,
-				product: null,
-				images: null
+				data: null
 			});
 		}
 	})
@@ -120,7 +118,9 @@ export const products = new Hono()
 				price: body.price,
 				category: body.category,
 				description: body.description,
-				ingredients: body.ingredients
+				ingredients: body.ingredients,
+				featured: Number(body.featured),
+				archived: Number(body.archived)
 			});
 
 			if (productInsertionResult.rowsAffected == 0) {
@@ -284,6 +284,12 @@ export const products = new Hono()
 			}
 			if (body.ingredients != product.ingredients) {
 				newProduct['price'] = body.price;
+			}
+			if (Number(body.featured) != product.featured) {
+				newProduct['featured'] = Number(body.featured);
+			}
+			if (Number(body.archived) != product.archived) {
+				newProduct['archived'] = Number(body.archived);
 			}
 
 			if (Object.keys(newProduct).length != 0) {

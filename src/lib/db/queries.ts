@@ -59,7 +59,9 @@ export const insertProduct = db
 		price: sql.placeholder('price'),
 		category: sql.placeholder('category'),
 		description: sql.placeholder('description'),
-		ingredients: sql.placeholder('ingredients')
+		ingredients: sql.placeholder('ingredients'),
+		featured: sql.placeholder('featured'),
+		archived: sql.placeholder('archived')
 	})
 	.prepare();
 

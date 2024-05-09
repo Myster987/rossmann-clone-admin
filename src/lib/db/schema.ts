@@ -47,7 +47,9 @@ export const products = sqliteTable('products', {
 	price: real('price').notNull(),
 	category: text('category').notNull(),
 	description: text('description').notNull(),
-	ingredients: text('ingredients').notNull()
+	ingredients: text('ingredients').notNull(),
+	featured: integer('featured').notNull(),
+	archived: integer('archived').notNull()
 });
 export type SelectProduct = InferSelectModel<typeof products>;
 export type InsertProduct = InferInsertModel<typeof products>;
