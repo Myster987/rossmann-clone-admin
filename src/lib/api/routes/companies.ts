@@ -97,7 +97,10 @@ export const companies = new Hono()
 			const products = await queryAllCompanyProductsWithImages.all({ companyId });
 
 			const res = await deleteImagesFromCloudinary(
-				products.map(({ images }) => images.imagePublicId)
+				products
+					.map(({ images }) => images)
+					.flat()
+					.map(({ imagePublicId }) => imagePublicId)
 			);
 
 			if (!res) {

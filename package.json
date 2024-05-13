@@ -3,10 +3,10 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"db:generate": "drizzle-kit generate:sqlite --config=./src/lib/db/drizzle.config.ts",
+		"db:generate": "drizzle-kit generate --config=./src/lib/db/drizzle.config.ts",
 		"db:migrate": "node ./src/lib/db/migrate.ts",
 		"db:studio": "drizzle-kit studio --config=./src/lib/db/drizzle.config.ts",
-		"db:push": "drizzle-kit push:sqlite --config=./src/lib/db/drizzle.config.ts",
+		"db:push": "drizzle-kit push --config=./src/lib/db/drizzle.config.ts",
 		"db:local": "turso dev -f ../db/local.db",
 		"dev": "vite dev",
 		"build": "vite build",

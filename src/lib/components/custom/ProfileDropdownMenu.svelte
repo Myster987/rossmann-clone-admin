@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { userStore } from '@/stores';
-	import { UserRound } from 'lucide-svelte';
+	import { LogOut, UserRound } from 'lucide-svelte';
 	import { Button } from '@/components/ui/button';
 	import { Separator } from '@/components/ui/separator';
 	import * as DropdownMenu from '@/components/ui/dropdown-menu';
@@ -33,7 +33,9 @@
 					};
 				}}
 			>
-				<Button type="submit" variant="ghost" class="w-full">Wyloguj się</Button>
+				<Button type="submit" variant="ghost" class="flex w-full gap-1"
+					><LogOut size="22" />Wyloguj się</Button
+				>
 			</form>
 		{:else}
 			<div class="grid gap-1 p-1">

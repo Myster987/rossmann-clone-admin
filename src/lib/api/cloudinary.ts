@@ -20,7 +20,6 @@ async function uploadImage(image: File) {
 			.upload_stream(
 				{
 					format: 'webp',
-					transformation: { height: 800, width: 400 },
 					invalidate: true
 				},
 				(error, result) => {

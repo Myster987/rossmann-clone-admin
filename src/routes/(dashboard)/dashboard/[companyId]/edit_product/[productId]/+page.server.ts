@@ -15,14 +15,14 @@ export const load: PageServerLoad = async ({ params: { productId }, locals: { ho
 
 	const form = await superValidate(zod(editProductFormSchema), {
 		defaults: {
-			name: data?.product?.name,
-			price: data?.product?.price,
-			description: data?.product?.description,
-			ingredients: data?.product?.ingredients,
-			category: data?.product?.category,
+			name: data?.name,
+			price: data?.price,
+			description: data?.description,
+			ingredients: data?.ingredients,
+			category: data?.category,
 			images: data?.images?.map((image) => image.imageUrl) as unknown as [File, ...File[]],
-			featured: data?.product?.featured,
-			archived: data?.product?.archived
+			featured: data?.featured,
+			archived: data?.archived
 		}
 	});
 

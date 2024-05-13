@@ -22,12 +22,10 @@ const withImages = new Hono()
 	.get('/:productId', async (c) => {
 		try {
 			const { productId } = c.req.param();
-			const data = await queryProductByIdWithImages.all({ id: productId });
-			const product = data[0].products;
-			const images = data.map(({ images }) => images);
+			const data = await queryProductByIdWithImages.get({ id: productId });
 			return c.json({
 				success: true,
-				data: { product, images }
+				data
 			});
 		} catch (error) {
 			console.log(error);

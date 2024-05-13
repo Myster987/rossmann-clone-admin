@@ -185,7 +185,7 @@
 			.map(([id]) => id);
 	}
 
-	const hidableCols = ['createdAt', 'price', 'category'];
+	const hidableCols = ['createdAt', 'price', 'category', 'featured', 'archived'];
 </script>
 
 <div class="h-full">

@@ -1,4 +1,4 @@
-import { eq, inArray, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '.';
 import * as schema from './schema';
 
@@ -30,11 +30,13 @@ export const queryAllCompanyProducts = db
 	.where(eq(schema.products.companyId, sql.placeholder('companyId')))
 	.prepare();
 
-export const queryAllCompanyProductsWithImages = db
-	.select()
-	.from(schema.products)
-	.where(eq(schema.products.companyId, sql.placeholder('companyId')))
-	.innerJoin(schema.images, eq(schema.products.id, schema.images.productId))
+export const queryAllCompanyProductsWithImages = db.query.products
+	.findMany({
+		where: eq(schema.products.companyId, sql.placeholder('companyId')),
+		with: {
+			images: true
+		}
+	})
 	.prepare();
 
 export const queryProductById = db
@@ -43,11 +45,32 @@ export const queryProductById = db
 	.where(eq(schema.products.id, sql.placeholder('id')))
 	.prepare();
 
-export const queryProductByIdWithImages = db
+export const queryProductByIdWithImages = db.query.products
+	.findFirst({
+		where: eq(schema.products.id, sql.placeholder('id')),
+		with: {
+			images: true
+		}
+	})
+	.prepare();
+
+export const queryFeaturedProducts = db
 	.select()
 	.from(schema.products)
-	.where(eq(schema.products.id, sql.placeholder('id')))
-	.innerJoin(schema.images, eq(schema.products.id, schema.images.productId))
+	.where(eq(schema.products.featured, 1))
+	.limit(sql.placeholder('limit'))
+	.offset(sql.placeholder('offset'))
+	.prepare();
+
+export const queryFeaturedProductsWithImages = db.query.products
+	.findMany({
+		where: eq(schema.products.featured, 1),
+		limit: sql.placeholder('limit'),
+		offset: sql.placeholder('offset'),
+		with: {
+			images: true
+		}
+	})
 	.prepare();
 
 export const insertProduct = db
@@ -101,3 +124,10 @@ export const deleteCompany = db
 	.where(eq(schema.companies.id, sql.placeholder('companyId')))
 	.returning()
 	.prepare();
+
+export const queryProductsByName = async (name: string, limit: number = 10, offset: number = 0) => {
+	const res = await db.run(
+		sql`SELECT products.id, products.name FROM products INNER JOIN products_fts ON products_fts.product_id = products.id WHERE products_fts MATCH 'product_name:' || ${name} ORDER BY rank LIMIT ${limit} OFFSET ${offset}`
+	);
+	return res.rows.map((val) => ({ id: val.id, name: val.name })) as { id: string; name: string }[];
+};
