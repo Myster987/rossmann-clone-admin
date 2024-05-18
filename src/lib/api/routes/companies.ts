@@ -94,12 +94,13 @@ export const companies = new Hono()
 	.delete('/:companyId', async (c) => {
 		try {
 			const { companyId } = c.req.param();
-
 			const products = await queryAllCompanyProductsWithImages.all({ companyId });
-			console.log(products);
 
 			const res = await deleteImagesFromCloudinary(
-				products.map(({ images }) => images.imagePublicId)
+				products
+					.map(({ images }) => images)
+					.flat()
+					.map(({ imagePublicId }) => imagePublicId)
 			);
 
 			if (!res) {

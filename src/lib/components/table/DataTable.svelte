@@ -116,6 +116,42 @@
 			}
 		}),
 		table.column({
+			accessor: 'featured',
+			header: 'Wyróżniony',
+			cell: ({ value }) => {
+				if (value == 1) {
+					return 'Tak';
+				}
+				return 'Nie';
+			},
+			plugins: {
+				sort: {
+					disable: true
+				},
+				filter: {
+					exclude: true
+				}
+			}
+		}),
+		table.column({
+			accessor: 'archived',
+			header: 'Zarchiwizowany',
+			cell: ({ value }) => {
+				if (value == 1) {
+					return 'Tak';
+				}
+				return 'Nie';
+			},
+			plugins: {
+				sort: {
+					disable: true
+				},
+				filter: {
+					exclude: true
+				}
+			}
+		}),
+		table.column({
 			accessor: ({ id }) => id,
 			header: '',
 			cell: ({ value }) => {
@@ -149,7 +185,7 @@
 			.map(([id]) => id);
 	}
 
-	const hidableCols = ['createdAt', 'price', 'category'];
+	const hidableCols = ['createdAt', 'price', 'category', 'featured', 'archived'];
 </script>
 
 <div class="h-full">

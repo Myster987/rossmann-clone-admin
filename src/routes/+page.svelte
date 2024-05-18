@@ -2,6 +2,7 @@
 	import { Button } from '@/components/ui/button';
 	import { Separator } from '@/components/ui/separator';
 	import * as Card from '@/components/ui/card';
+	import RossmannLogo from '@/assets/rossmann_log.svg?raw';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -11,9 +12,12 @@
 
 <main class="grid h-screen place-items-center">
 	<Card.Root>
-		<Card.Header>
+		<Card.Header class="grid gap-2">
+			<div class="flex justify-center">
+				{@html RossmannLogo}
+			</div>
 			{#if user}
-				<h1 class="text-3xl">Witaj {user.email}</h1>
+				<h1 class="text-3xl">Witaj w panelu admina</h1>
 			{:else}
 				<h1 class="text-3xl">Nie jesteś zalogowany/ana</h1>
 			{/if}

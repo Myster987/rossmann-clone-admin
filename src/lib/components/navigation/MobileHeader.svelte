@@ -4,6 +4,7 @@
 	import { GithubLink, ThemeButton, ProfileDropdownMenu, SelectCompany } from '@/components/custom';
 	import { Button } from '@/components/ui/button';
 	import * as Sheet from '@/components/ui/sheet';
+	import RossmannIcon from '@/assets/rossmann_icon.svg?raw';
 </script>
 
 <header
@@ -12,9 +13,14 @@
 	<div class="flex justify-between p-2 px-4">
 		<Sheet.Root>
 			<Sheet.Trigger asChild let:builder>
-				<Button builders={[builder]} variant="ghost" size="icon">
-					<Menu />
-				</Button>
+				<div class="flex gap-2">
+					<Button builders={[builder]} variant="ghost" size="icon">
+						<Menu />
+					</Button>
+					<div class="h-9 w-9">
+						{@html RossmannIcon}
+					</div>
+				</div>
 			</Sheet.Trigger>
 			<Sheet.Content side="left">
 				<Sheet.Header class="flex items-center justify-center">

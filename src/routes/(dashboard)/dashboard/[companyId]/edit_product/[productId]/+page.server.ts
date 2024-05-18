@@ -10,16 +10,19 @@ export const load: PageServerLoad = async ({ params: { productId }, locals: { ho
 			productId
 		}
 	});
-	const data = await res.json();
+	const resData = await res.json();
+	const { data } = resData;
 
 	const form = await superValidate(zod(editProductFormSchema), {
 		defaults: {
-			name: data.product?.name,
-			price: data.product?.price,
-			description: data.product?.description,
-			ingredients: data.product?.ingredients,
-			category: data.product?.category,
-			images: data.images?.map((image) => image.imageUrl) as unknown as [File, ...File[]]
+			name: data?.name,
+			price: data?.price,
+			description: data?.description,
+			ingredients: data?.ingredients,
+			category: data?.category,
+			images: data?.images?.map((image) => image.imageUrl) as unknown as [File, ...File[]],
+			featured: data?.featured,
+			archived: data?.archived
 		}
 	});
 
@@ -29,7 +32,7 @@ export const load: PageServerLoad = async ({ params: { productId }, locals: { ho
 		});
 	}
 
-	if (!data.success) {
+	if (!resData.success) {
 		return message(form, 'Nie udało się znaleźć produktu.', {
 			status: 404
 		});

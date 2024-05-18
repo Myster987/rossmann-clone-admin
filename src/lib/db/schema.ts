@@ -1,4 +1,4 @@
-import { sql, type InferSelectModel, type InferInsertModel } from 'drizzle-orm';
+import { sql, type InferSelectModel, type InferInsertModel, relations } from 'drizzle-orm';
 import { sqliteTable, text, real, integer } from 'drizzle-orm/sqlite-core';
 
 export const users = sqliteTable('users', {
@@ -9,6 +9,10 @@ export const users = sqliteTable('users', {
 	email: text('email').notNull().unique(),
 	password: text('password').notNull()
 });
+export const usersRelations = relations(users, ({ many }) => ({
+	cart: many(cart),
+	favorite: many(favorite)
+}));
 export type SelectUsers = InferSelectModel<typeof users>;
 export type InsertUsers = InferInsertModel<typeof users>;
 
@@ -32,6 +36,8 @@ export const companies = sqliteTable('companies', {
 		.notNull(),
 	name: text('name').notNull()
 });
+export const companiesRelation = relations(companies, ({ many }) => ({ products: many(products) }));
+
 export type SelectCompanies = InferSelectModel<typeof companies>;
 export type InsertCompanies = InferInsertModel<typeof companies>;
 
@@ -47,8 +53,18 @@ export const products = sqliteTable('products', {
 	price: real('price').notNull(),
 	category: text('category').notNull(),
 	description: text('description').notNull(),
-	ingredients: text('ingredients').notNull()
+	ingredients: text('ingredients').notNull(),
+	featured: integer('featured').notNull(),
+	archived: integer('archived').notNull()
 });
+export const productsRelation = relations(products, ({ many, one }) => ({
+	images: many(images),
+	company: one(companies, {
+		fields: [products.companyId],
+		references: [companies.id]
+	})
+}));
+
 export type SelectProduct = InferSelectModel<typeof products>;
 export type InsertProduct = InferInsertModel<typeof products>;
 
@@ -61,6 +77,13 @@ export const images = sqliteTable('images', {
 	imagePublicId: text('image_public_id').notNull(),
 	imageUrl: text('image_url').notNull()
 });
+export const imagesRelation = relations(images, ({ one }) => ({
+	product: one(products, {
+		fields: [images.productId],
+		references: [products.id]
+	})
+}));
+
 export type SelectImages = InferSelectModel<typeof images>;
 export type InsertImages = InferInsertModel<typeof images>;
 
@@ -72,17 +95,38 @@ export const cart = sqliteTable('cart', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
+export const cartRelation = relations(cart, ({ one }) => ({
+	user: one(users, {
+		fields: [cart.userId],
+		references: [users.id]
+	}),
+	product: one(products, {
+		fields: [cart.productsId],
+		references: [products.id]
+	})
+}));
+
 export type SelectCart = InferSelectModel<typeof cart>;
 export type InsertCart = InferInsertModel<typeof cart>;
 
 export const favorite = sqliteTable('favorite', {
-	id: integer('id').primaryKey(),
+	id: integer('id').primaryKey({ autoIncrement: true }),
 	addedAt: text('added_at').default(sql`CURRENT_TIMESTAMP`),
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
 	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
+export const favoriteRelation = relations(favorite, ({ one }) => ({
+	user: one(users, {
+		fields: [favorite.userId],
+		references: [users.id]
+	}),
+	product: one(products, {
+		fields: [favorite.productsId],
+		references: [products.id]
+	})
+}));
 export type SelectFavorite = InferSelectModel<typeof favorite>;
 export type InsertFavorite = InferInsertModel<typeof favorite>;
 

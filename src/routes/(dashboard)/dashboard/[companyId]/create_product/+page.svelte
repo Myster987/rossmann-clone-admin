@@ -1,13 +1,15 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { superForm } from 'sveltekit-superforms';
 	import { addProductFormSchema } from '@/auth/form_schemas';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { Input } from '@/components/ui/input';
+	import { Checkbox } from '@/components/ui/checkbox';
 	import { Separator } from '@/components/ui/separator';
-	import * as Form from '@/components/ui/form';
-	import { toast } from 'svelte-sonner';
-	import { page } from '$app/stores';
 	import { ImageUpload } from '@/components/ui/image-upload';
+	import { toast } from 'svelte-sonner';
+	import * as Form from '@/components/ui/form';
+	import * as Card from '@/components/ui/card';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -15,6 +17,9 @@
 	const form = superForm(data.form, {
 		validators: zodClient(addProductFormSchema),
 		onSubmit({ formData }) {
+			formData.append('featured', String($formData.featured));
+			formData.append('archived', String($formData.archived));
+
 			formData.append('companyId', $page.params.companyId);
 			$formData.images.forEach((image) => formData.append('images', image));
 			toast.loading('Proszę czekać...');
@@ -94,6 +99,46 @@
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
+
+			<Card.Root>
+				<Card.Content>
+					<Form.Field {form} name="featured">
+						<Form.Control let:attrs>
+							<div class="flex items-center gap-2 pb-1 pt-3">
+								<Checkbox
+									{...attrs}
+									checked={Boolean($formData.featured)}
+									on:click={() => ($formData.featured = Number(!$formData.featured))}
+								/>
+								<Form.Label class="text-lg">Wyróżniony</Form.Label>
+							</div>
+							<p class="text-muted-foreground">Ten produkt będzie się pojawiał na stronie sklepu</p>
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
+				</Card.Content>
+			</Card.Root>
+
+			<Card.Root>
+				<Card.Content>
+					<Form.Field {form} name="archived">
+						<Form.Control let:attrs>
+							<div class="flex items-center gap-2 pb-1 pt-3">
+								<Checkbox
+									{...attrs}
+									checked={Boolean($formData.archived)}
+									on:click={() => ($formData.archived = Number(!$formData.archived))}
+								/>
+								<Form.Label class="text-lg">Zarchiwizowane</Form.Label>
+							</div>
+							<p class="text-muted-foreground">
+								Ten produkt nie będzie się pojawiał na stronie sklepu
+							</p>
+						</Form.Control>
+						<Form.FieldErrors />
+					</Form.Field>
+				</Card.Content>
+			</Card.Root>
 		</div>
 
 		<Form.Button class="w-24 px-6">Dodaj</Form.Button>

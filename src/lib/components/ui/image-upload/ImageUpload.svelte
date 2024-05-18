@@ -17,7 +17,7 @@
 				<img
 					src={URL.createObjectURL(file)}
 					alt={file.name}
-					class="h-full w-full object-fill"
+					class="h-full w-full object-contain"
 					on:load={(e) => URL.revokeObjectURL(e.target?.src)}
 				/>
 				<Button

@@ -9,7 +9,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	event.locals.honoClient = createHonoClient(event.fetch);
 
-	if (event.url.pathname.startsWith('/dashboard') && !user) {
+	if (
+		(event.url.pathname.startsWith('/dashboard') || event.url.pathname.startsWith('/api')) &&
+		!user
+	) {
 		redirect(302, handleLoginRedirect(event));
 	}
 
