@@ -9,6 +9,10 @@ export const users = sqliteTable('users', {
 	email: text('email').notNull().unique(),
 	password: text('password').notNull()
 });
+export const usersRelations = relations(users, ({ many }) => ({
+	cart: many(cart),
+	favorite: many(favorite)
+}));
 export type SelectUsers = InferSelectModel<typeof users>;
 export type InsertUsers = InferInsertModel<typeof users>;
 
@@ -91,17 +95,38 @@ export const cart = sqliteTable('cart', {
 		.references(() => users.id, { onDelete: 'cascade' }),
 	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
+export const cartRelation = relations(cart, ({ one }) => ({
+	user: one(users, {
+		fields: [cart.userId],
+		references: [users.id]
+	}),
+	product: one(products, {
+		fields: [cart.productsId],
+		references: [products.id]
+	})
+}));
+
 export type SelectCart = InferSelectModel<typeof cart>;
 export type InsertCart = InferInsertModel<typeof cart>;
 
 export const favorite = sqliteTable('favorite', {
-	id: integer('id').primaryKey(),
+	id: integer('id').primaryKey({ autoIncrement: true }),
 	addedAt: text('added_at').default(sql`CURRENT_TIMESTAMP`),
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
 	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
+export const favoriteRelation = relations(favorite, ({ one }) => ({
+	user: one(users, {
+		fields: [favorite.userId],
+		references: [users.id]
+	}),
+	product: one(products, {
+		fields: [favorite.productsId],
+		references: [products.id]
+	})
+}));
 export type SelectFavorite = InferSelectModel<typeof favorite>;
 export type InsertFavorite = InferInsertModel<typeof favorite>;
 
