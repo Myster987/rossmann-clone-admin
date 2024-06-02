@@ -17,6 +17,7 @@ export const load: PageServerLoad = async ({ params: { productId }, locals: { ho
 		defaults: {
 			name: data?.name,
 			price: data?.price,
+			quantity: data?.quantity,
 			description: data?.description,
 			ingredients: data?.ingredients,
 			category: data?.category,
