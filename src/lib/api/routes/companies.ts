@@ -2,17 +2,17 @@ import { z } from 'zod';
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { generateId } from 'lucia';
+import { eq } from 'drizzle-orm';
 import {
 	queryUsersCompanies,
 	queryAllCompanyProductsWithImages,
 	insertCompany,
 	deleteCompany
 } from '@/db/queries';
-import { eq } from 'drizzle-orm';
-import { db } from '@/db';
-import * as schema from '@/db/schema';
 import { editCompanyFormSchema } from '@/auth/form_schemas';
-import { cloudinary, deleteImagesFromCloudinary } from '../cloudinary';
+import { db } from '@/db';
+import { deleteImagesFromCloudinary } from '../cloudinary';
+import * as schema from '@/db/schema';
 
 const postCompanySchema = z.object({
 	name: z.string(),

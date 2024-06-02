@@ -3,8 +3,8 @@
 	import { Menu } from 'lucide-svelte';
 	import { GithubLink, ThemeButton, ProfileDropdownMenu, SelectCompany } from '@/components/custom';
 	import { Button } from '@/components/ui/button';
-	import * as Sheet from '@/components/ui/sheet';
 	import RossmannIcon from '@/assets/rossmann_icon.svg?raw';
+	import * as Sheet from '@/components/ui/sheet';
 </script>
 
 <header

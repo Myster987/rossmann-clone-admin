@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import DataTable from '@/components/table/DataTable.svelte';
+	import { Plus } from 'lucide-svelte';
 	import { asyncProductsStore } from '@/stores';
 	import { Separator } from '@/components/ui/separator';
 	import { Button } from '@/components/ui/button';
-	import { Plus } from 'lucide-svelte';
+	import DataTable from '@/components/table/DataTable.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

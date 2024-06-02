@@ -1,5 +1,5 @@
-import { queryOrderProducts } from '@/db/queries';
 import { Hono } from 'hono';
+import { queryOrderProducts } from '@/db/queries';
 
 export const orders = new Hono().basePath('/orders').get('/:companyId', async (c) => {
 	try {

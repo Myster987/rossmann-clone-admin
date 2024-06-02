@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
+	import { Trash2 } from 'lucide-svelte';
 	import { createHonoClient } from '@/api/client';
 	import { asyncProductsStore } from '@/stores';
-	import { toast } from 'svelte-sonner';
 	import { Button } from '@/components/ui/button';
-	import { Trash2 } from 'lucide-svelte';
 	import type { Writable } from 'svelte/store';
 
 	const honoClient = createHonoClient(fetch);

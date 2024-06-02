@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
+import { generateId } from 'lucia';
 import { eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
-import * as schema from '@/db/schema';
 import {
 	deleteImages,
 	deleteImagesOfProduct,
@@ -14,9 +14,9 @@ import {
 	queryProductById,
 	queryProductByIdWithImages
 } from '@/db/queries';
-import { generateId } from 'lucia';
 import { addProductFormSchema, editProductFormSchema } from '@/auth/form_schemas';
 import { deleteImagesFromCloudinary, uploadMultipleImages } from '../cloudinary';
+import * as schema from '@/db/schema';
 
 const withImages = new Hono()
 	.get('/:productId', async (c) => {

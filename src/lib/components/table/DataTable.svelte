@@ -23,10 +23,10 @@
 	import { Skeleton } from '@/components/ui/skeleton';
 	import DataTableActions from './DataTableActions.svelte';
 	import DataTableCheckbox from './DataTableCheckbox.svelte';
-	import * as Table from '@/components/ui/table';
-	import * as DropdownMenu from '@/components/ui/dropdown-menu';
 	import DataTableDeleteButton from './DataTableDeleteButton.svelte';
 	import DataTableSelectPageSize from './DataTableSelectPageSize.svelte';
+	import * as Table from '@/components/ui/table';
+	import * as DropdownMenu from '@/components/ui/dropdown-menu';
 
 	let tableData = writable($asyncProductsStore.data || []);
 	$: if (browser) $tableData = $asyncProductsStore.data || [];

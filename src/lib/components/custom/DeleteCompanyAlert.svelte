@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
+	import { Trash2 } from 'lucide-svelte';
 	import { selectedCompany } from '@/stores';
 	import { Button } from '@/components/ui/button';
-	import { Trash2 } from 'lucide-svelte';
 	import * as AlertDialog from '@/components/ui/alert-dialog';
-	import { toast } from 'svelte-sonner';
 </script>
 
 <AlertDialog.Root>

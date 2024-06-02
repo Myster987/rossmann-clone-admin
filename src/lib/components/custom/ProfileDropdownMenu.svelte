@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import { userStore } from '@/stores';
+	import { enhance } from '$app/forms';
+	import { toast } from 'svelte-sonner';
 	import { LogOut, UserRound } from 'lucide-svelte';
+	import { userStore } from '@/stores';
 	import { Button } from '@/components/ui/button';
 	import { Separator } from '@/components/ui/separator';
 	import * as DropdownMenu from '@/components/ui/dropdown-menu';
-	import { toast } from 'svelte-sonner';
 </script>
 
 <DropdownMenu.Root>
