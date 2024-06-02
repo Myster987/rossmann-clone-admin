@@ -91,6 +91,14 @@
 				<Form.FieldErrors />
 			</Form.Field>
 
+			<Form.Field {form} name="quantity">
+				<Form.Control let:attrs>
+					<Form.Label class="text-lg">Ilość</Form.Label>
+					<Input {...attrs} bind:value={$formData.quantity} />
+				</Form.Control>
+				<Form.FieldErrors />
+			</Form.Field>
+
 			<Form.Field {form} name="category">
 				<Form.Control let:attrs>
 					<Form.Label class="text-lg">Kategoria</Form.Label>

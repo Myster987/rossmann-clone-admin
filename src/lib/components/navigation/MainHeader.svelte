@@ -17,6 +17,9 @@
 				<a href="/dashboard/{$selectedCompany.id}">
 					<Button variant="link" class="font-semibold">Produkty</Button>
 				</a>
+				<a href="/dashboard/{$selectedCompany.id}/orders">
+					<Button variant="link" class="font-semibold">Zamówienia</Button>
+				</a>
 				<a href="/dashboard/{$selectedCompany.id}/settings">
 					<Button variant="link" class="font-semibold">Ustawienia</Button>
 				</a>

@@ -34,6 +34,9 @@
 						<a href="/dashboard/{$selectedCompany.id}">
 							<Button variant="link" class="text-2xl font-semibold">Produkty</Button>
 						</a>
+						<a href="/dashboard/{$selectedCompany.id}/orders">
+							<Button variant="link" class="font-semibold">Zamówienia</Button>
+						</a>
 						<a href="/dashboard/{$selectedCompany.id}/settings">
 							<Button variant="link" class="text-2xl font-semibold">Ustawienia</Button>
 						</a>

@@ -59,6 +59,11 @@ export const addProductFormSchema = z
 			.number({ required_error: 'Cena jest wymagana' })
 			.lte(999999, 'Cena jest zbyt duża')
 			.positive('Cena musi być większa od 0'),
+		quantity: z.coerce
+			.number({ required_error: 'Ilość jest wymagana' })
+			.int('Ilość musi być liczbą całkowitą')
+			.lte(999999999, 'Ilość jest zby duża')
+			.positive('Ilość musi być większa od 0'),
 		category: z
 			.string({ required_error: 'Kategoria jest wymagana' })
 			.min(1, 'Brak kategorii')
@@ -119,6 +124,11 @@ export const editProductFormSchema = z
 			.number({ required_error: 'Cena jest wymagana' })
 			.lte(999999, 'Cena jest zbyt duża')
 			.positive('Cena musi być większa od 0'),
+		quantity: z.coerce
+			.number({ required_error: 'Ilość jest wymagana' })
+			.int('Ilość musi być liczbą całkowitą')
+			.lte(999999999, 'Ilość jest zby duża')
+			.positive('Ilość musi być większa od 0'),
 		category: z
 			.string({ required_error: 'Kategoria jest wymagana' })
 			.min(1, 'Brak kategorii')
@@ -180,6 +190,11 @@ export const apiEditProductFormSchema = z
 			.number({ required_error: 'Cena jest wymagana' })
 			.lte(999999, 'Cena jest zbyt duża')
 			.positive('Cena musi być większa od 0'),
+		quantity: z.coerce
+			.number({ required_error: 'Ilość jest wymagana' })
+			.int('Ilość musi być liczbą całkowitą')
+			.lte(999999999, 'Ilość jest zby duża')
+			.positive('Ilość musi być większa od 0'),
 		category: z
 			.string({ required_error: 'Kategoria jest wymagana' })
 			.min(1, 'Brak kategorii')

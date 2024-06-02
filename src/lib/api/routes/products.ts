@@ -114,6 +114,7 @@ export const products = new Hono()
 				companyId: body.companyId,
 				name: body.name,
 				price: body.price,
+				quantity: body.quantity,
 				category: body.category,
 				description: body.description,
 				ingredients: body.ingredients,
@@ -273,6 +274,9 @@ export const products = new Hono()
 			}
 			if (body.price != product.price) {
 				newProduct['price'] = body.price;
+			}
+			if (body.quantity != product.quantity) {
+				newProduct['quantity'] = body.quantity;
 			}
 			if (body.category != product.category) {
 				newProduct['category'] = body.category;

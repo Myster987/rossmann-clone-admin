@@ -104,6 +104,15 @@
 			}
 		}),
 		table.column({
+			accessor: 'quantity',
+			header: 'Ilość',
+			plugins: {
+				filter: {
+					exclude: true
+				}
+			}
+		}),
+		table.column({
 			accessor: 'category',
 			header: 'Kategoria',
 			plugins: {
@@ -185,7 +194,7 @@
 			.map(([id]) => id);
 	}
 
-	const hidableCols = ['createdAt', 'price', 'category', 'featured', 'archived'];
+	const hidableCols = ['createdAt', 'price', 'quantity', 'category', 'featured', 'archived'];
 </script>
 
 <div class="h-full">
@@ -223,7 +232,7 @@
 								{#each headerRow.cells as cell (cell.id)}
 									<Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props>
 										<Table.Head {...attrs}>
-											{#if cell.id == 'createdAt' || cell.id == 'price'}
+											{#if cell.id == 'createdAt' || cell.id == 'price' || cell.id == 'quantity'}
 												<Button variant="ghost" on:click={props.sort.toggle} class="flex gap-1">
 													<Render of={cell.render()} />
 													<ArrowUpDown size="18" />

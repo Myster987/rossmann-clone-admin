@@ -9,6 +9,7 @@
 		"db:push": "drizzle-kit push --config=./src/lib/db/drizzle.config.ts",
 		"db:local": "turso dev -f ../db/local.db",
 		"dev": "vite dev",
+		"dev-shop": "cd ../ && cd rossmann-clone-shop && pnpm run dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

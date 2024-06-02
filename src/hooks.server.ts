@@ -9,11 +9,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	event.locals.honoClient = createHonoClient(event.fetch);
 
-	if (
-		(event.url.pathname.startsWith('/dashboard') || event.url.pathname.startsWith('/api')) &&
-		!user
-	) {
+	if (event.url.pathname.startsWith('/dashboard') && !user) {
 		redirect(302, handleLoginRedirect(event));
+	}
+
+	if (event.url.pathname.startsWith('/api') && !user) {
+		return new Response('Unauthorized', { status: 401 });
 	}
 
 	return resolve(event);

@@ -51,6 +51,7 @@ export const products = sqliteTable('products', {
 		}),
 	name: text('name').notNull(),
 	price: real('price').notNull(),
+	quantity: integer('quantity').notNull(),
 	category: text('category').notNull(),
 	description: text('description').notNull(),
 	ingredients: text('ingredients').notNull(),
@@ -93,7 +94,7 @@ export const cart = sqliteTable('cart', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
-	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
+	productId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
 export const cartRelation = relations(cart, ({ one }) => ({
 	user: one(users, {
@@ -101,7 +102,7 @@ export const cartRelation = relations(cart, ({ one }) => ({
 		references: [users.id]
 	}),
 	product: one(products, {
-		fields: [cart.productsId],
+		fields: [cart.productId],
 		references: [products.id]
 	})
 }));
@@ -115,7 +116,7 @@ export const favorite = sqliteTable('favorite', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
-	productsId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
+	productId: text('product_id').references(() => products.id, { onDelete: 'cascade' })
 });
 export const favoriteRelation = relations(favorite, ({ one }) => ({
 	user: one(users, {
@@ -123,7 +124,7 @@ export const favoriteRelation = relations(favorite, ({ one }) => ({
 		references: [users.id]
 	}),
 	product: one(products, {
-		fields: [favorite.productsId],
+		fields: [favorite.productId],
 		references: [products.id]
 	})
 }));
@@ -133,23 +134,43 @@ export type InsertFavorite = InferInsertModel<typeof favorite>;
 export const orders = sqliteTable('orders', {
 	id: text('id').primaryKey(),
 	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
-	companyId: text('company_id').references(() => companies.id, { onDelete: 'cascade' }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id),
 	fulfilledAt: text('fulfilled_at'),
-	status: text('status').default('pending')
+	status: text('status').default('pending'),
+	address: text('address'),
+	phone: text('phone')
 });
+export const orderRelation = relations(orders, ({ many }) => ({
+	orderProducts: many(orderProduct)
+}));
 export type SelectOrders = InferSelectModel<typeof orders>;
 export type InsertOrders = InferInsertModel<typeof orders>;
 
 export const orderProduct = sqliteTable('order_product', {
 	id: text('id').primaryKey(),
 	createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
-	orderId: text('order_id').references(() => orders.id, { onDelete: 'cascade' }),
-	userId: text('user_id')
+	companyId: text('company_id')
 		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
+		.references(() => companies.id),
+	orderId: text('order_id')
+		.notNull()
+		.references(() => orders.id, { onDelete: 'cascade' }),
 	productId: text('product_id')
 		.notNull()
-		.references(() => products.id, { onDelete: 'cascade' })
+		.references(() => products.id, { onDelete: 'cascade' }),
+	quantity: integer('quantity').notNull()
 });
+export const orderProductRelation = relations(orderProduct, ({ one }) => ({
+	order: one(orders, {
+		fields: [orderProduct.orderId],
+		references: [orders.id]
+	}),
+	product: one(products, {
+		fields: [orderProduct.productId],
+		references: [products.id]
+	})
+}));
 export type SelectOrdersProduct = InferSelectModel<typeof orderProduct>;
 export type InsertOrdersProduct = InferInsertModel<typeof orderProduct>;

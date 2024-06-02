@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { db } from '.';
 import * as schema from './schema';
 
@@ -45,6 +45,12 @@ export const queryProductById = db
 	.where(eq(schema.products.id, sql.placeholder('id')))
 	.prepare();
 
+export const queryProductByIds = db.query.products
+	.findMany({
+		where: inArray(schema.products.id, sql.placeholder('productIds'))
+	})
+	.prepare();
+
 export const queryProductByIdWithImages = db.query.products
 	.findFirst({
 		where: eq(schema.products.id, sql.placeholder('id')),
@@ -80,6 +86,7 @@ export const insertProduct = db
 		companyId: sql.placeholder('companyId'),
 		name: sql.placeholder('name'),
 		price: sql.placeholder('price'),
+		quantity: sql.placeholder('quantity'),
 		category: sql.placeholder('category'),
 		description: sql.placeholder('description'),
 		ingredients: sql.placeholder('ingredients'),
@@ -123,6 +130,43 @@ export const deleteCompany = db
 	.delete(schema.companies)
 	.where(eq(schema.companies.id, sql.placeholder('companyId')))
 	.returning()
+	.prepare();
+
+export const insertOrder = db
+	.insert(schema.orders)
+	.values({
+		id: sql.placeholder('id'),
+		userId: sql.placeholder('userId')
+	})
+	.returning()
+	.prepare();
+
+export const insertOrderProduct = db
+	.insert(schema.orderProduct)
+	.values({
+		id: sql.placeholder('id'),
+		productId: sql.placeholder('productId'),
+		companyId: sql.placeholder('companyId'),
+		orderId: sql.placeholder('orderId'),
+		quantity: sql.placeholder('quantity')
+	})
+	.returning()
+	.prepare();
+
+export const insertMultipleOrderProducts = async (
+	data: { id: string; productId: string; orderId: string; companyId: string }[]
+) => {
+	return Promise.all(data.map((val) => insertOrderProduct.get(val)));
+};
+
+export const queryOrderProducts = db.query.orderProduct
+	.findMany({
+		where: eq(schema.orderProduct.companyId, sql.placeholder('companyId')),
+		with: {
+			product: true,
+			order: true
+		}
+	})
 	.prepare();
 
 export const queryProductsByName = async (name: string, limit: number = 10, offset: number = 0) => {
